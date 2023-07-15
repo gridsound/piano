@@ -55,8 +55,7 @@ writeJScompress() {
 declare -a CSSfiles=(
 	"assets/fonts/fonts.css"
 	"gs-ui-components/gsui.css"
-	# "gs-ui-components/gsuiIcon/gsuiIcon.css"
-	"../gs-ui-components/gsuiIcon/gsuiIcon.css"
+	"gs-ui-components/gsuiIcon/gsuiIcon.css"
 	"gs-ui-components/gsuiKeys/gsuiKeys.colors.default.css"
 	"gs-ui-components/gsuiKeys/gsuiKeys.css"
 	"style.css"
