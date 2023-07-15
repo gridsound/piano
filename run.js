@@ -25,7 +25,7 @@ document.body.append(
 	),
 );
 
-const ctx = new AudioContext();
+let ctx;
 const root = document.querySelector( "#myPiano" );
 const uiKeys = document.querySelector( "gsui-keys" );
 const bufKeys = new Map();
@@ -47,18 +47,15 @@ document.body.onresize = () => {
 
 document.body.onresize();
 
-document.body.onclick = bodyInitClick;
+root.onclick = bodyInitClick;
 
 function bodyInitClick() {
-	document.body.onclick = null;
+	root.onclick = null;
 	GSUI.$setAttribute( root, "dl", true );
-
-	const prKeys = dlPianoAssets();
-
-	ctx.resume();
-	Promise.all( prKeys )
+	ctx = new AudioContext();
+	Promise.all( dlPianoAssets() )
 		.then( arr => GSUI.$setAttribute( root, "ready", true ) )
-		.catch( () => document.body.onclick = bodyInitClick )
+		.catch( () => root.onclick = bodyInitClick )
 		.finally( () => GSUI.$setAttribute( root, "dl", false ) );
 };
 
@@ -79,19 +76,18 @@ GSUI.$listenEvents( uiKeys, {
 	gsuiKeys: {
 		keyDown: d => {
 			const [ key, vel ] = d.args;
+			const vel2 = Math.max( .3, Math.min( vel / .85, 1 ) );
 			const absn = ctx.createBufferSource();
 			const gain = ctx.createGain();
 			const lowp = ctx.createBiquadFilter();
 			const freq = 440 * 2 ** ( ( key - 57 ) / 12 );
-			const filt = ( freq + 5000 * GSUI.$easeInCirc( vel ) ) / ( 1 / vel );
-			const vel2 = vel;
+			const filt = ( freq + 5000 * GSUI.$easeInCirc( vel2 ) ) / ( 1 / vel2 );
 
-			ctx.resume();
-			lowp.type = "lowpass";
-			lowp.Q.value = 0;
-			lowp.frequency.value = filt;
 			absn.buffer = bufKeys.get( key );
-			gain.gain.value = vel2;
+			lowp.type = "lowpass";
+			lowp.Q.setValueAtTime( 0, ctx.currentTime );
+			lowp.frequency.setValueAtTime( filt, ctx.currentTime );
+			gain.gain.setValueAtTime( vel2, ctx.currentTime );
 			absn.connect( lowp );
 			lowp.connect( gain );
 			gain.connect( ctx.destination );
