@@ -59,6 +59,7 @@ body {
 
 /* .......................................................................... */
 #myPiano {
+	position: relative;
 	display: flex;
 	gap: 8px;
 	padding-right: calc( 8px + 16px );
@@ -81,4 +82,22 @@ body {
 	border-radius: 4px;
 	background-image: linear-gradient( 180deg, #f55, #c4a );
 	box-shadow: 8px 8px 0px #0003;
+}
+
+#myPiano[ dl ] {
+	filter: grayscale( 1 );
+}
+#myPiano[ dl ] gsui-keys {
+	opacity: .2;
+}
+#myPiano:not( [ ready ] ) gsui-keys {
+	pointer-events: none;
+}
+#myPiano[ dl ] .loading {
+	position: absolute;
+	inset: 0;
+	font-size: 52px;
+}
+#myPiano:not( [ dl ] ) .loading {
+	display: none;
 }

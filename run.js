@@ -13,6 +13,7 @@ document.body.append(
 		),
 		GSUI.$createElement( "div", { id: "niceBorder" },
 			GSUI.$createElement( "gsui-keys", { orient: "horizontal", rootoctave: 4, octaves: "2 4" } ),
+			GSUI.$createElement( "i", { class: "gsuiIcon loading", "data-spin": "on" } ),
 		),
 	),
 	GSUI.$createElement( "div", { id: "foot" },
@@ -25,8 +26,8 @@ document.body.append(
 );
 
 const ctx = new AudioContext();
+const root = document.querySelector( "#myPiano" );
 const uiKeys = document.querySelector( "gsui-keys" );
-const prKeys = [];
 const bufKeys = new Map();
 const absnMap = new Map();
 const szKey = GSUI.$mobile ? 24 : 16;
@@ -46,6 +47,34 @@ document.body.onresize = () => {
 
 document.body.onresize();
 
+document.body.onclick = bodyInitClick;
+
+function bodyInitClick() {
+	document.body.onclick = null;
+	GSUI.$setAttribute( root, "dl", true );
+
+	const prKeys = dlPianoAssets();
+
+	ctx.resume();
+	Promise.all( prKeys )
+		.then( arr => GSUI.$setAttribute( root, "ready", true ) )
+		.catch( () => document.body.onclick = bodyInitClick )
+		.finally( () => GSUI.$setAttribute( root, "dl", false ) );
+};
+
+function dlPianoAssets() {
+	const pr = [];
+
+	for ( let i = 21; i <= 108; ++i ) {
+		pr.push( fetch( `/assets/🎹/ff/${ i }.mp3` )
+			.then( res => res.arrayBuffer() )
+			.then( arr => ctx.decodeAudioData( arr ) )
+			.then( buf => bufKeys.set( i, buf ) )
+		);
+	}
+	return pr;
+}
+
 GSUI.$listenEvents( uiKeys, {
 	gsuiKeys: {
 		keyDown: d => {
@@ -57,7 +86,7 @@ GSUI.$listenEvents( uiKeys, {
 			const filt = ( freq + 5000 * GSUI.$easeInCirc( vel ) ) / ( 1 / vel );
 			const vel2 = vel;
 
-			lg(freq, filt)
+			ctx.resume();
 			lowp.type = "lowpass";
 			lowp.Q.value = 0;
 			lowp.frequency.value = filt;
@@ -82,16 +111,3 @@ GSUI.$listenEvents( uiKeys, {
 		},
 	}
 } );
-
-for ( let i = 21; i <= 108; ++i ) {
-	prKeys.push( fetch( `/🎹/ff/${ i }.mp3` )
-		.then( res => res.arrayBuffer() )
-		.then( arr => ctx.decodeAudioData( arr ) )
-		.then( buf => bufKeys.set( i, buf ) )
-	);
-}
-
-Promise.all( prKeys )
-	.then( arr => {
-		lg( bufKeys );
-	} );
