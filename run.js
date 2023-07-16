@@ -25,13 +25,33 @@ document.body.append(
 	),
 );
 
-let ctx;
 const root = document.querySelector( "#myPiano" );
 const uiKeys = document.querySelector( "gsui-keys" );
-const bufKeys = new Map();
-const absnMap = new Map();
 const szKey = GSUI.$mobile ? 24 : 16;
+const absnMap = new Map();
+let ctx;
+let bufKeys = null;
 let nbOct = 0;
+const keysDur = [
+		[ 15, 14 ],
+		[ 12, 12 ],
+		[ 12, 10 ],
+		[ 12,  8 ],
+		[  6,  6 ],
+		[  6,  5 ],
+		[  6,  4 ],
+		[  6,  3 ],
+		[ 13,  2 ],
+	]
+	.map( a => ( new Array( a[ 0 ] ) )
+	.fill( a[ 1 ] ) )
+	.flat()
+	.map( a => [ 0, a ] );
+
+keysDur.reduce( ( ind, a ) => {
+	a[ 0 ] = ind;
+	return ind + a[ 1 ];
+}, 0 );
 
 uiKeys.style.fontSize = `${ szKey }px`;
 
@@ -53,37 +73,32 @@ function bodyInitClick() {
 	root.onclick = null;
 	GSUI.$setAttribute( root, "dl", true );
 	ctx = new AudioContext();
-	Promise.all( dlPianoAssets() )
+	dlPianoAssets()
 		.then( arr => GSUI.$setAttribute( root, "ready", true ) )
 		.catch( () => root.onclick = bodyInitClick )
 		.finally( () => GSUI.$setAttribute( root, "dl", false ) );
 };
 
 function dlPianoAssets() {
-	const pr = [];
-
-	for ( let i = 21; i <= 108; ++i ) {
-		pr.push( fetch( `/assets/🎹/ff/${ i }.mp3` )
-			.then( res => res.arrayBuffer() )
-			.then( arr => ctx.decodeAudioData( arr ) )
-			.then( buf => bufKeys.set( i, buf ) )
-		);
-	}
-	return pr;
+	return fetch( "assets/🎹/all88-ff.128k.mp3" )
+		.then( res => res.arrayBuffer() )
+		.then( arr => ctx.decodeAudioData( arr ) )
+		.then( all => bufKeys = all );
 }
 
 GSUI.$listenEvents( uiKeys, {
 	gsuiKeys: {
 		keyDown: d => {
 			const [ key, vel ] = d.args;
-			const vel2 = Math.max( .3, Math.min( vel / .85, 1 ) );
+			const vel2 = Math.max( .25, Math.min( vel / .85, 1 ) );
 			const absn = ctx.createBufferSource();
 			const gain = ctx.createGain();
 			const lowp = ctx.createBiquadFilter();
 			const freq = 440 * 2 ** ( ( key - 57 ) / 12 );
 			const filt = ( freq + 5000 * GSUI.$easeInCirc( vel2 ) ) / ( 1 / vel2 );
+			const [ bufOff, bufDur ] = keysDur[ key - 21 ];
 
-			absn.buffer = bufKeys.get( key );
+			absn.buffer = bufKeys;
 			lowp.type = "lowpass";
 			lowp.Q.setValueAtTime( 0, ctx.currentTime );
 			lowp.frequency.setValueAtTime( filt, ctx.currentTime );
@@ -91,7 +106,7 @@ GSUI.$listenEvents( uiKeys, {
 			absn.connect( lowp );
 			lowp.connect( gain );
 			gain.connect( ctx.destination );
-			absn.start();
+			absn.start( 0, bufOff, bufDur );
 			absnMap.set( key, [ absn, gain, lowp, vel2 ] );
 		},
 		keyUp: d => {
