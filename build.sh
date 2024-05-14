@@ -5,12 +5,12 @@ writeHeader() {
 	echo '<html lang="en">'
 	echo '<head>'
 	echo '<title>Piano by GridSound</title>'
-	echo '<meta charset="UTF-8"/>'
+	echo '<meta charset="utf-8"/>'
 	echo '<meta name="viewport" content="width=device-width"/>'
 	echo '<meta name="description" content="A virtual piano"/>'
 	echo '<meta name="google" content="notranslate"/>'
 	echo '<meta property="og:type" content="website"/>'
-	echo '<meta property="og:title" content="Soundbox by GridSound"/>'
+	echo '<meta property="og:title" content="Piano by GridSound"/>'
 	echo '<meta property="og:url" content="https://piano.gridsound.com"/>'
 	echo '<meta property="og:image" content="https://piano.gridsound.com/cover.png"/>'
 	echo '<meta property="og:image:width" content="1290"/>'
@@ -67,7 +67,9 @@ declare -a JSfilesProd=(
 
 declare -a JSfiles=(
 	# "checkBrowser.js"
-	"gs-ui-components/gsui.js"
+	"gs-utils/gs-utils.js"
+	"gs-utils/gs-utils-dom.js"
+	"gs-ui-components/gsui0ne/gsui0ne.js"
 	"gs-ui-components/gsuiKeys/gsuiKeys.html.js"
 	"gs-ui-components/gsuiKeys/gsuiKeys.js"
 	"run.js"
