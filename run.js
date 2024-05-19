@@ -56,123 +56,109 @@ let bufKeysAs = null;
 let bufKeysADs = null;
 let bufKeys88 = null;
 let nbOct = 0;
-const keysMapAs = createKeysMap( {
-	21: 14,
-	33: 14,
-	45: 12,
-	57: 10,
-	69: 8,
-	81: 5,
-	93: 3,
-	105: 2,
-} );
-const keysMapADs = createKeysMap( {
-	21: 14,
-	26: 14,
-	33: 14,
-	38: 12,
-	45: 12,
-	50: 10,
-	57: 10,
-	62: 8,
-	69: 8,
-	74: 6,
-	81: 5,
-	86: 4,
-	93: 3,
-	98: 2,
-	105: 2,
-} );
-const keysMap88 = createKeysMap( {
-	21: 14,
-	22: 14,
-	23: 14,
-	24: 14,
-	25: 14,
-	26: 14,
-	27: 14,
-	28: 14,
-	29: 14,
-	30: 14,
-	31: 14,
-	32: 14,
-	33: 14,
-	34: 14,
-	35: 14,
-	36: 12,
-	37: 12,
-	38: 12,
-	39: 12,
-	40: 12,
-	41: 12,
-	42: 12,
-	43: 12,
-	44: 12,
-	45: 12,
-	46: 12,
-	47: 12,
-	48: 10,
-	49: 10,
-	50: 10,
-	51: 10,
-	52: 10,
-	53: 10,
-	54: 10,
-	55: 10,
-	56: 10,
-	57: 10,
-	58: 10,
-	59: 10,
-	60: 8,
-	61: 8,
-	62: 8,
-	63: 8,
-	64: 8,
-	65: 8,
-	66: 8,
-	67: 8,
-	68: 8,
-	69: 8,
-	70: 8,
-	71: 8,
-	72: 6,
-	73: 6,
-	74: 6,
-	75: 6,
-	76: 6,
-	77: 6,
-	78: 5,
-	79: 5,
-	80: 5,
-	81: 5,
-	82: 5,
-	83: 5,
-	84: 4,
-	85: 4,
-	86: 4,
-	87: 4,
-	88: 4,
-	89: 4,
-	90: 3,
-	91: 3,
-	92: 3,
-	93: 3,
-	94: 3,
-	95: 3,
-	96: 2,
-	97: 2,
-	98: 2,
-	99: 2,
-	100: 2,
-	101: 2,
-	102: 2,
-	103: 2,
-	104: 2,
-	105: 2,
-	106: 2,
-	107: 2,
-	108: 2,
-} );
+const keysMap88 = {
+	// assets/🎹/21-35
+	21: [ 14, 14 *  0 ],
+	22: [ 14, 14 *  1 ],
+	23: [ 14, 14 *  2 ],
+	24: [ 14, 14 *  3 ],
+	25: [ 14, 14 *  4 ],
+	26: [ 14, 14 *  5 ],
+	27: [ 14, 14 *  6 ],
+	28: [ 14, 14 *  7 ],
+	29: [ 14, 14 *  8 ],
+	30: [ 14, 14 *  9 ],
+	31: [ 14, 14 * 10 ],
+	32: [ 14, 14 * 11 ],
+	33: [ 14, 14 * 12 ],
+	34: [ 14, 14 * 13 ],
+	35: [ 14, 14 * 14 ],
+
+	// assets/🎹/36-47
+	36: [ 12, 12 *  0 ],
+	37: [ 12, 12 *  1 ],
+	38: [ 12, 12 *  2 ],
+	39: [ 12, 12 *  3 ],
+	40: [ 12, 12 *  4 ],
+	41: [ 12, 12 *  5 ],
+	42: [ 12, 12 *  6 ],
+	43: [ 12, 12 *  7 ],
+	44: [ 12, 12 *  8 ],
+	45: [ 12, 12 *  9 ],
+	46: [ 12, 12 * 10 ],
+	47: [ 12, 12 * 11 ],
+
+	// assets/🎹/48-59
+	48: [ 10, 10 *  0 ],
+	49: [ 10, 10 *  1 ],
+	50: [ 10, 10 *  2 ],
+	51: [ 10, 10 *  3 ],
+	52: [ 10, 10 *  4 ],
+	53: [ 10, 10 *  5 ],
+	54: [ 10, 10 *  6 ],
+	55: [ 10, 10 *  7 ],
+	56: [ 10, 10 *  8 ],
+	57: [ 10, 10 *  9 ],
+	58: [ 10, 10 * 10 ],
+	59: [ 10, 10 * 11 ],
+
+	// assets/🎹/60-71
+	60: [ 8, 8 *  0 ],
+	61: [ 8, 8 *  1 ],
+	62: [ 8, 8 *  2 ],
+	63: [ 8, 8 *  3 ],
+	64: [ 8, 8 *  4 ],
+	65: [ 8, 8 *  5 ],
+	66: [ 8, 8 *  6 ],
+	67: [ 8, 8 *  7 ],
+	68: [ 8, 8 *  8 ],
+	69: [ 8, 8 *  9 ],
+	70: [ 8, 8 * 10 ],
+	71: [ 8, 8 * 11 ],
+
+	// assets/🎹/72-83
+	72: [ 6, 6 * 0 ],
+	73: [ 6, 6 * 1 ],
+	74: [ 6, 6 * 2 ],
+	75: [ 6, 6 * 3 ],
+	76: [ 6, 6 * 4 ],
+	77: [ 6, 6 * 5 ],
+	78: [ 5, 6 * 6 + 5 * 0 ],
+	79: [ 5, 6 * 6 + 5 * 1 ],
+	80: [ 5, 6 * 6 + 5 * 2 ],
+	81: [ 5, 6 * 6 + 5 * 3 ],
+	82: [ 5, 6 * 6 + 5 * 4 ],
+	83: [ 5, 6 * 6 + 5 * 5 ],
+
+	// assets/🎹/84-95
+	84: [ 4, 4 * 0 ],
+	85: [ 4, 4 * 1 ],
+	86: [ 4, 4 * 2 ],
+	87: [ 4, 4 * 3 ],
+	88: [ 4, 4 * 4 ],
+	89: [ 4, 4 * 5 ],
+	90: [ 3, 4 * 6 + 3 * 0 ],
+	91: [ 3, 4 * 6 + 3 * 1 ],
+	92: [ 3, 4 * 6 + 3 * 2 ],
+	93: [ 3, 4 * 6 + 3 * 3 ],
+	94: [ 3, 4 * 6 + 3 * 4 ],
+	95: [ 3, 4 * 6 + 3 * 5 ],
+
+	// assets/🎹/96-108
+	 96: [ 2, 2 *  0 ],
+	 97: [ 2, 2 *  1 ],
+	 98: [ 2, 2 *  2 ],
+	 99: [ 2, 2 *  3 ],
+	100: [ 2, 2 *  4 ],
+	101: [ 2, 2 *  5 ],
+	102: [ 2, 2 *  6 ],
+	103: [ 2, 2 *  7 ],
+	104: [ 2, 2 *  8 ],
+	105: [ 2, 2 *  9 ],
+	106: [ 2, 2 * 10 ],
+	107: [ 2, 2 * 11 ],
+	108: [ 2, 2 * 12 ],
+};
 
 uiKeys.style.fontSize = `${ szKey }px`;
 gsuiKeys.$keyNotation( "CDEFGAB" );
@@ -238,28 +224,37 @@ function bodyInitClick() {
 	GSUsetAttribute( root, "dl", true );
 	ctx = new AudioContext();
 	dlPianoAssets()
-		.then( arr => GSUsetAttribute( root, "ready", true ) )
+		.then( arr => {
+			arr.forEach( ( [ buf, midiA, midiB ] ) => {
+				for ( let i = midiA; i <= midiB; ++i ) {
+					keysMap88[ i ].push( buf );
+				}
+			} );
+			GSUsetAttribute( root, "ready", true );
+		} )
 		.catch( () => root.onclick = bodyInitClick )
 		.finally( () => GSUsetAttribute( root, "dl", false ) );
 };
 
 function dlPianoAssets() {
-	/** /
-	return fetch( "assets/🎹/allA-ff.128k.mp3" )
-		.then( res => res.arrayBuffer() )
-		.then( arr => ctx.decodeAudioData( arr ) )
-		.then( all => bufKeysAs = all );
-	/** /
-	return fetch( "assets/🎹/allAD-ff.128k.mp3" )
-		.then( res => res.arrayBuffer() )
-		.then( arr => ctx.decodeAudioData( arr ) )
-		.then( all => bufKeysADs = all );
-	/**/
-	return fetch( "assets/🎹/all88-ff.128k.mp3" )
-		.then( res => res.arrayBuffer() )
-		.then( arr => ctx.decodeAudioData( arr ) )
-		.then( all => bufKeys88 = all );
-	/**/
+	return Promise.allSettled( [
+		"assets/🎹/21-35.96k.mp3",
+		"assets/🎹/36-47.96k.mp3",
+		"assets/🎹/48-59.96k.mp3",
+		"assets/🎹/60-71.96k.mp3",
+		"assets/🎹/72-83.96k.mp3",
+		"assets/🎹/84-95.96k.mp3",
+		"assets/🎹/96-108.96k.mp3",
+	].map( url => {
+		return fetch( url )
+			.then( res => res.arrayBuffer() )
+			.then( arr => ctx.decodeAudioData( arr ) )
+			.then( buf => [ buf, ...GSUsplitNums( url.split( "/" )[ 2 ].split( "." )[ 0 ], "-" ) ] );
+	} ) )
+		.then( res => res
+			.filter( r => r.status === "fulfilled" )
+			.map( r => r.value )
+		);
 }
 
 GSUlistenEvents( uiKeys, {
@@ -267,26 +262,19 @@ GSUlistenEvents( uiKeys, {
 		keyDown: d => {
 			const [ key, vel ] = d.args;
 			const key2 = key + 12;
-			// const [ bufOff, bufDur, change ] = keysMapAs[ key2 ];
-			// const [ bufOff, bufDur, change ] = keysMapADs[ key2 ];
-			const [ bufOff, bufDur, change ] = keysMap88[ key2 ];
+			const [ bufDur, bufOff, buf ] = keysMap88[ key2 ];
 			const vel2 = Math.max( .25, Math.min( vel / .85, 1 ) );
 			const absn = ctx.createBufferSource();
 			const gain = ctx.createGain();
 			const lowp = ctx.createBiquadFilter();
-			const freq = 440 * 2 ** ( ( ( key2 + change ) - 69 ) / 12 );
+			const freq = 440 * 2 ** ( ( ( key2 ) - 69 ) / 12 );
 			const filt = ( freq + 5000 * GSUeaseInCirc( vel2 ) ) / ( 1 / vel2 );
 
-			// absn.buffer = bufKeysAs;
-			// absn.buffer = bufKeysADs;
-			absn.buffer = bufKeys88;
+			absn.buffer = buf;
 			lowp.type = "lowpass";
 			lowp.Q.setValueAtTime( 0, ctx.currentTime );
 			lowp.frequency.setValueAtTime( filt, ctx.currentTime );
 			gain.gain.setValueAtTime( vel2, ctx.currentTime );
-			if ( change ) {
-				absn.playbackRate.value = 1 * ( 2 ** ( change / 12 ) );
-			}
 			absn.connect( lowp );
 			lowp.connect( gain );
 			gain.connect( ctx.destination );
