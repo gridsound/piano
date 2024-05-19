@@ -1,11 +1,33 @@
 "use strict";
 
+const pianoPath = "M4.57764e-05 112.676C3.86599e-05 90.6737 0 73 8.5 52.5C17 32 33.9306 20.4349 39 17.5C48.5 12 70 -3.05176e-05 110 -1.52587e-05C150 0 192 16 216.5 46.5C235 69.5 244.5 88 247 133.5C249.5 179 253.5 188.5 268.5 213C283.5 237.5 347.5 265 355.5 284.5C363.5 304 360 394 360 394H4.57764e-05C4.57764e-05 394 6.10352e-05 159.851 4.57764e-05 112.676Z";
+
 document.body.append(
 	GSUcreateDiv( { id: "title" },
 		GSUcreateSpan( null, "Piano" ),
 		GSUcreateSpan( null, "by GridSound" ),
 	),
 	GSUcreateDiv( { id: "myPiano" },
+		GSUcreateDiv( { id: "pianoTop" },
+			GSUcreateElementSVG( "svg", { id: "pianoSVGGradients" },
+				GSUcreateElementSVG( "defs", null,
+					GSUcreateElementSVG( "linearGradient", { id: "pianoGradient", x1: "0%", x2: "0%", y1: "0%", y2: "100%" },
+						GSUcreateElementSVG( "stop", { offset:  "50%", "stop-color": "#00000040" } ),
+						GSUcreateElementSVG( "stop", { offset: "100%", "stop-color": "#00000000" } ),
+					),
+					GSUcreateElementSVG( "linearGradient", { id: "pianoGradient2", x1: "0%", x2: "0%", y1: "0%", y2: "100%" },
+						GSUcreateElementSVG( "stop", { offset:  "50%", "stop-color": "#00000040" } ),
+						GSUcreateElementSVG( "stop", { offset: "100%", "stop-color": "#00000010" } ),
+					),
+				),
+			),
+			GSUcreateElementSVG( "svg", { viewBox: "0 0 361 394", preserveAspectRatio: "none" },
+				GSUcreateElementSVG( "path", { d: pianoPath } ),
+			),
+			GSUcreateElementSVG( "svg", { viewBox: "0 0 361 394", preserveAspectRatio: "none" },
+				GSUcreateElementSVG( "path", { d: pianoPath } ),
+			),
+		),
 		GSUcreateDiv( { id: "velocityLabel" },
 			GSUcreateI( { class: "gsuiIcon", "data-icon": "arrow-up" } ),
 			GSUcreateSpan( null, "velocity" ),

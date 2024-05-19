@@ -22,6 +22,8 @@ body {
 /* .......................................................................... */
 #title {
 	display: flex;
+	position: relative;
+	z-index: 1;
 	align-items: baseline;
 	height: 50px;
 	line-height: 50px;
@@ -79,7 +81,7 @@ body {
 	max-width: calc( 100% - 4px * 2 );
 	padding: 4px;
 	border-radius: 4px;
-	background-image: linear-gradient( 180deg, #f55, #c4a );
+	background-image: linear-gradient( 90deg, #ff4040, #d07fff );
 	box-shadow: 8px 8px 0px #0003;
 }
 
@@ -99,4 +101,24 @@ body {
 }
 #myPiano:not( [ dl ] ) .loading {
 	display: none;
+}
+
+#pianoTop {
+	position: absolute;
+	inset: 0 calc( 16px + 8px );
+	top: -540px;
+	bottom: 100%;
+}
+#pianoSVGGradients {
+	position: absolute;
+}
+#pianoTop svg[ viewBox ] {
+	position: absolute;
+	bottom: 0;
+	fill: url( #pianoGradient );
+}
+#pianoTop svg:last-child {
+	transform: skewY( 345deg ) scaleX( .9 );
+	transform-origin: left;
+	fill: url( #pianoGradient2 );
 }
