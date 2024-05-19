@@ -10,7 +10,13 @@ self.addEventListener( "install", e => {
 			"/assets/fonts/fa-duotone-900.woff2",
 			"/assets/fonts/montserrat-500-latin.woff2",
 			"/assets/fonts/montserrat-700-latin.woff2",
-			"/assets/🎹/all88-ff.128k.mp3",
+			"/assets/🎹/21-35.96k.mp3",
+			"/assets/🎹/36-47.96k.mp3",
+			"/assets/🎹/48-59.96k.mp3",
+			"/assets/🎹/60-71.96k.mp3",
+			"/assets/🎹/72-83.96k.mp3",
+			"/assets/🎹/84-95.96k.mp3",
+			"/assets/🎹/96-108.96k.mp3",
 		] )
 	) ) );
 } );
