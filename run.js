@@ -35,7 +35,15 @@ document.body.append(
 		),
 		GSUcreateDiv( { id: "niceBorder" },
 			GSUcreateElement( "gsui-keys", { orient: "horizontal", rootoctave: 4, octaves: "1 4" } ),
-			GSUcreateI( { class: "gsuiIcon loading", "data-spin": "on" } ),
+			GSUcreateDiv( { id: "octaves-loaders" },
+				GSUcreateDiv( { class: "octave-loader", style: { animationDelay: ".0s" } } ),
+				GSUcreateDiv( { class: "octave-loader", style: { animationDelay: ".05s" } } ),
+				GSUcreateDiv( { class: "octave-loader", style: { animationDelay: ".10s" } } ),
+				GSUcreateDiv( { class: "octave-loader", style: { animationDelay: ".15s" } } ),
+				GSUcreateDiv( { class: "octave-loader", style: { animationDelay: ".20s" } } ),
+				GSUcreateDiv( { class: "octave-loader", style: { animationDelay: ".25s" } } ),
+				GSUcreateDiv( { class: "octave-loader", style: { animationDelay: ".30s" } } ),
+			),
 		),
 	),
 	GSUcreateDiv( { id: "foot" },
@@ -49,115 +57,124 @@ document.body.append(
 
 const root = document.querySelector( "#myPiano" );
 const uiKeys = document.querySelector( "gsui-keys" );
+const octavesLoadersWrap = document.querySelector( "#octaves-loaders" );
+const octavesLoaders = octavesLoadersWrap.getElementsByClassName( "octave-loader" );
 const szKey = GSUonMobile ? 24 : 16;
+const octaveBuffers = {};
+const octaveURLs = {
+	1: "assets/🎹/21-35.96k.mp3",
+	2: "assets/🎹/36-47.96k.mp3",
+	3: "assets/🎹/48-59.96k.mp3",
+	4: "assets/🎹/60-71.96k.mp3",
+	5: "assets/🎹/72-83.96k.mp3",
+	6: "assets/🎹/84-95.96k.mp3",
+	7: "assets/🎹/96-108.96k.mp3",
+};
 const absnMap = new Map();
-let ctx;
-let bufKeysAs = null;
-let bufKeysADs = null;
-let bufKeys88 = null;
+const ctx = new AudioContext();
 let nbOct = 0;
 const keysMap88 = {
 	// assets/🎹/21-35
-	21: [ 14, 14 *  0 ],
-	22: [ 14, 14 *  1 ],
-	23: [ 14, 14 *  2 ],
-	24: [ 14, 14 *  3 ],
-	25: [ 14, 14 *  4 ],
-	26: [ 14, 14 *  5 ],
-	27: [ 14, 14 *  6 ],
-	28: [ 14, 14 *  7 ],
-	29: [ 14, 14 *  8 ],
-	30: [ 14, 14 *  9 ],
-	31: [ 14, 14 * 10 ],
-	32: [ 14, 14 * 11 ],
-	33: [ 14, 14 * 12 ],
-	34: [ 14, 14 * 13 ],
-	35: [ 14, 14 * 14 ],
+	21: [ 1, 14, 14 *  0 ],
+	22: [ 1, 14, 14 *  1 ],
+	23: [ 1, 14, 14 *  2 ],
+	24: [ 1, 14, 14 *  3 ],
+	25: [ 1, 14, 14 *  4 ],
+	26: [ 1, 14, 14 *  5 ],
+	27: [ 1, 14, 14 *  6 ],
+	28: [ 1, 14, 14 *  7 ],
+	29: [ 1, 14, 14 *  8 ],
+	30: [ 1, 14, 14 *  9 ],
+	31: [ 1, 14, 14 * 10 ],
+	32: [ 1, 14, 14 * 11 ],
+	33: [ 1, 14, 14 * 12 ],
+	34: [ 1, 14, 14 * 13 ],
+	35: [ 1, 14, 14 * 14 ],
 
 	// assets/🎹/36-47
-	36: [ 12, 12 *  0 ],
-	37: [ 12, 12 *  1 ],
-	38: [ 12, 12 *  2 ],
-	39: [ 12, 12 *  3 ],
-	40: [ 12, 12 *  4 ],
-	41: [ 12, 12 *  5 ],
-	42: [ 12, 12 *  6 ],
-	43: [ 12, 12 *  7 ],
-	44: [ 12, 12 *  8 ],
-	45: [ 12, 12 *  9 ],
-	46: [ 12, 12 * 10 ],
-	47: [ 12, 12 * 11 ],
+	36: [ 2, 12, 12 *  0 ],
+	37: [ 2, 12, 12 *  1 ],
+	38: [ 2, 12, 12 *  2 ],
+	39: [ 2, 12, 12 *  3 ],
+	40: [ 2, 12, 12 *  4 ],
+	41: [ 2, 12, 12 *  5 ],
+	42: [ 2, 12, 12 *  6 ],
+	43: [ 2, 12, 12 *  7 ],
+	44: [ 2, 12, 12 *  8 ],
+	45: [ 2, 12, 12 *  9 ],
+	46: [ 2, 12, 12 * 10 ],
+	47: [ 2, 12, 12 * 11 ],
 
 	// assets/🎹/48-59
-	48: [ 10, 10 *  0 ],
-	49: [ 10, 10 *  1 ],
-	50: [ 10, 10 *  2 ],
-	51: [ 10, 10 *  3 ],
-	52: [ 10, 10 *  4 ],
-	53: [ 10, 10 *  5 ],
-	54: [ 10, 10 *  6 ],
-	55: [ 10, 10 *  7 ],
-	56: [ 10, 10 *  8 ],
-	57: [ 10, 10 *  9 ],
-	58: [ 10, 10 * 10 ],
-	59: [ 10, 10 * 11 ],
+	48: [ 3, 10, 10 *  0 ],
+	49: [ 3, 10, 10 *  1 ],
+	50: [ 3, 10, 10 *  2 ],
+	51: [ 3, 10, 10 *  3 ],
+	52: [ 3, 10, 10 *  4 ],
+	53: [ 3, 10, 10 *  5 ],
+	54: [ 3, 10, 10 *  6 ],
+	55: [ 3, 10, 10 *  7 ],
+	56: [ 3, 10, 10 *  8 ],
+	57: [ 3, 10, 10 *  9 ],
+	58: [ 3, 10, 10 * 10 ],
+	59: [ 3, 10, 10 * 11 ],
 
 	// assets/🎹/60-71
-	60: [ 8, 8 *  0 ],
-	61: [ 8, 8 *  1 ],
-	62: [ 8, 8 *  2 ],
-	63: [ 8, 8 *  3 ],
-	64: [ 8, 8 *  4 ],
-	65: [ 8, 8 *  5 ],
-	66: [ 8, 8 *  6 ],
-	67: [ 8, 8 *  7 ],
-	68: [ 8, 8 *  8 ],
-	69: [ 8, 8 *  9 ],
-	70: [ 8, 8 * 10 ],
-	71: [ 8, 8 * 11 ],
+	60: [ 4, 8, 8 *  0 ],
+	61: [ 4, 8, 8 *  1 ],
+	62: [ 4, 8, 8 *  2 ],
+	63: [ 4, 8, 8 *  3 ],
+	64: [ 4, 8, 8 *  4 ],
+	65: [ 4, 8, 8 *  5 ],
+	66: [ 4, 8, 8 *  6 ],
+	67: [ 4, 8, 8 *  7 ],
+	68: [ 4, 8, 8 *  8 ],
+	69: [ 4, 8, 8 *  9 ],
+	70: [ 4, 8, 8 * 10 ],
+	71: [ 4, 8, 8 * 11 ],
 
 	// assets/🎹/72-83
-	72: [ 6, 6 * 0 ],
-	73: [ 6, 6 * 1 ],
-	74: [ 6, 6 * 2 ],
-	75: [ 6, 6 * 3 ],
-	76: [ 6, 6 * 4 ],
-	77: [ 6, 6 * 5 ],
-	78: [ 5, 6 * 6 + 5 * 0 ],
-	79: [ 5, 6 * 6 + 5 * 1 ],
-	80: [ 5, 6 * 6 + 5 * 2 ],
-	81: [ 5, 6 * 6 + 5 * 3 ],
-	82: [ 5, 6 * 6 + 5 * 4 ],
-	83: [ 5, 6 * 6 + 5 * 5 ],
+	72: [ 5, 6, 6 * 0 ],
+	73: [ 5, 6, 6 * 1 ],
+	74: [ 5, 6, 6 * 2 ],
+	75: [ 5, 6, 6 * 3 ],
+	76: [ 5, 6, 6 * 4 ],
+	77: [ 5, 6, 6 * 5 ],
+	78: [ 5, 5, 6 * 6 + 5 * 0 ],
+	79: [ 5, 5, 6 * 6 + 5 * 1 ],
+	80: [ 5, 5, 6 * 6 + 5 * 2 ],
+	81: [ 5, 5, 6 * 6 + 5 * 3 ],
+	82: [ 5, 5, 6 * 6 + 5 * 4 ],
+	83: [ 5, 5, 6 * 6 + 5 * 5 ],
 
 	// assets/🎹/84-95
-	84: [ 4, 4 * 0 ],
-	85: [ 4, 4 * 1 ],
-	86: [ 4, 4 * 2 ],
-	87: [ 4, 4 * 3 ],
-	88: [ 4, 4 * 4 ],
-	89: [ 4, 4 * 5 ],
-	90: [ 3, 4 * 6 + 3 * 0 ],
-	91: [ 3, 4 * 6 + 3 * 1 ],
-	92: [ 3, 4 * 6 + 3 * 2 ],
-	93: [ 3, 4 * 6 + 3 * 3 ],
-	94: [ 3, 4 * 6 + 3 * 4 ],
-	95: [ 3, 4 * 6 + 3 * 5 ],
+	84: [ 6, 4, 4 * 0 ],
+	85: [ 6, 4, 4 * 1 ],
+	86: [ 6, 4, 4 * 2 ],
+	87: [ 6, 4, 4 * 3 ],
+	88: [ 6, 4, 4 * 4 ],
+	89: [ 6, 4, 4 * 5 ],
+	90: [ 6, 3, 4 * 6 + 3 * 0 ],
+	91: [ 6, 3, 4 * 6 + 3 * 1 ],
+	92: [ 6, 3, 4 * 6 + 3 * 2 ],
+	93: [ 6, 3, 4 * 6 + 3 * 3 ],
+	94: [ 6, 3, 4 * 6 + 3 * 4 ],
+	95: [ 6, 3, 4 * 6 + 3 * 5 ],
 
 	// assets/🎹/96-108
-	 96: [ 2, 2 *  0 ],
-	 97: [ 2, 2 *  1 ],
-	 98: [ 2, 2 *  2 ],
-	 99: [ 2, 2 *  3 ],
-	100: [ 2, 2 *  4 ],
-	101: [ 2, 2 *  5 ],
-	102: [ 2, 2 *  6 ],
-	103: [ 2, 2 *  7 ],
-	104: [ 2, 2 *  8 ],
-	105: [ 2, 2 *  9 ],
-	106: [ 2, 2 * 10 ],
-	107: [ 2, 2 * 11 ],
-	108: [ 2, 2 * 12 ],
+	 96: [ 7, 2, 2 *  0 ],
+	 97: [ 7, 2, 2 *  1 ],
+	 98: [ 7, 2, 2 *  2 ],
+	 99: [ 7, 2, 2 *  3 ],
+	100: [ 7, 2, 2 *  4 ],
+	101: [ 7, 2, 2 *  5 ],
+	102: [ 7, 2, 2 *  6 ],
+	103: [ 7, 2, 2 *  7 ],
+	104: [ 7, 2, 2 *  8 ],
+	105: [ 7, 2, 2 *  9 ],
+	106: [ 7, 2, 2 * 10 ],
+	107: [ 7, 2, 2 * 11 ],
+	108: [ 7, 2, 2 * 12 ],
 };
 
 uiKeys.style.fontSize = `${ szKey }px`;
@@ -170,91 +187,38 @@ document.body.onresize = () => {
 	if ( nbOct !== nbOct2 ) {
 		nbOct = nbOct2;
 		GSUsetAttribute( uiKeys, "octaves", `1 ${ nbOct }` );
+		for ( let i = 0; i < octavesLoaders.length; ++i ) {
+			const needed = i < nbOct;
+
+			octavesLoaders[ i ].classList.toggle( "octave-needed", needed );
+			if ( needed && !octaveBuffers[ i + 1 ] ) {
+				dlOctave( i + 1 );
+			}
+		}
 	}
 };
 
 document.body.onresize();
 
-root.onclick = bodyInitClick;
-
-function createKeysMap( durs ) {
-	const durs2 = { ...durs };
-
-	for ( let k in durs2 ) {
-		durs2[ k ] = [ 0, durs2[ k ], 0 ];
+document.body.onclick = () => {
+	if ( ctx.state !== "running" ) {
+		ctx.resume();
 	}
-
-	const keys = Object.keys( durs2 ).sort( ( a, b ) => a - b );
-
-	keys.forEach( ( k, i ) => {
-		const p = durs2[ keys[ i - 1 ] ];
-
-		if ( p ) {
-			durs2[ k ][ 0 ] = p[ 0 ] + p[ 1 ];
-		}
-	} );
-
-	const durs3 = { ...durs2 };
-
-	for ( let k = 21; k < 108; ++k ) {
-		if ( !durs2[ k ] ) {
-			const closestMidi = getClosestKey( durs2, k );
-			const nkey = [ ...durs2[ closestMidi ] ];
-
-			nkey[ 2 ] = k - closestMidi;
-			durs3[ k ] = nkey;
-		}
-	}
-	return durs3;
-}
-
-function getClosestKey( map, midi ) {
-	for ( let i = 0; i < 88; ++i ) {
-		if ( map[ midi + i ] ) {
-			return midi + i;
-		}
-		if ( map[ midi - i ] ) {
-			return midi - i;
-		}
-	}
-}
-
-function bodyInitClick() {
-	root.onclick = null;
-	GSUsetAttribute( root, "dl", true );
-	ctx = new AudioContext();
-	dlPianoAssets()
-		.then( arr => {
-			arr.forEach( ( [ buf, midiA, midiB ] ) => {
-				for ( let i = midiA; i <= midiB; ++i ) {
-					keysMap88[ i ].push( buf );
-				}
-			} );
-			GSUsetAttribute( root, "ready", true );
-		} )
-		.catch( () => root.onclick = bodyInitClick )
-		.finally( () => GSUsetAttribute( root, "dl", false ) );
 };
 
-function dlPianoAssets() {
-	return Promise.allSettled( [
-		"assets/🎹/21-35.96k.mp3",
-		"assets/🎹/36-47.96k.mp3",
-		"assets/🎹/48-59.96k.mp3",
-		"assets/🎹/60-71.96k.mp3",
-		"assets/🎹/72-83.96k.mp3",
-		"assets/🎹/84-95.96k.mp3",
-		"assets/🎹/96-108.96k.mp3",
-	].map( url => {
-		return fetch( url )
-			.then( res => res.arrayBuffer() )
-			.then( arr => ctx.decodeAudioData( arr ) )
-			.then( buf => [ buf, ...GSUsplitNums( url.split( "/" )[ 2 ].split( "." )[ 0 ], "-" ) ] );
-	} ) )
-		.then( res => res
-			.filter( r => r.status === "fulfilled" )
-			.map( r => r.value )
-		);
+function dlOctave( oct ) {
+	const url = octaveURLs[ oct ];
+	const loadCl = octavesLoaders[ oct - 1 ].classList;
+
+	loadCl.add( "octave-loading" );
+	return fetch( url )
+		.then( res => res.arrayBuffer() )
+		.then( arr => ctx.decodeAudioData( arr ) )
+		.then( buf => {
+			octaveBuffers[ oct ] = buf;
+			loadCl.remove( "octave-loading" );
+			return [ buf, ...GSUsplitNums( url.split( "/" )[ 2 ].split( "." )[ 0 ], "-" ) ];
+		} );
 }
 
 GSUlistenEvents( uiKeys, {
@@ -262,7 +226,8 @@ GSUlistenEvents( uiKeys, {
 		keyDown: d => {
 			const [ key, vel ] = d.args;
 			const key2 = key + 12;
-			const [ bufDur, bufOff, buf ] = keysMap88[ key2 ];
+			const [ octave, bufDur, bufOff ] = keysMap88[ key2 ];
+			const buf = octaveBuffers[ octave ];
 			const vel2 = Math.max( .25, Math.min( vel / .85, 1 ) );
 			const absn = ctx.createBufferSource();
 			const gain = ctx.createGain();
@@ -286,7 +251,6 @@ GSUlistenEvents( uiKeys, {
 			const key2 = key + 12;
 			const [ absn, gain, lowp, vel ] = absnMap.get( key2 );
 
-			lg(key2)
 			gain.gain.setValueCurveAtTime( new Float32Array( [ vel, 0 ] ), ctx.currentTime, .5 );
 			setTimeout(() => {
 				lowp.disconnect();

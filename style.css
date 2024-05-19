@@ -75,8 +75,10 @@ body {
 	opacity: .4;
 }
 #niceBorder {
+	display: flex;
+	flex-direction: column;
 	overflow: hidden;
-	height: 100px;
+	height: 110px;
 	min-height: 60px;
 	max-width: calc( 100% - 4px * 2 );
 	padding: 4px;
@@ -84,25 +86,36 @@ body {
 	background-image: linear-gradient( 90deg, #ff4040, #d07fff );
 	box-shadow: 8px 8px 0px #0003;
 }
+#myPiano gsui-keys {
+	flex: 1;
+}
 
-#myPiano[ dl ] {
-	filter: grayscale( 1 );
+/* .......................................................................... */
+#octaves-loaders {
+	display: none;
+	width: 100%;
+	height: 4px;
+	background-color: #0008;
 }
-#myPiano[ dl ] gsui-keys {
-	opacity: .2;
+#octaves-loaders:has( .octave-needed.octave-loading ) {
+	display: flex;
 }
-#myPiano:not( [ ready ] ) gsui-keys {
-	pointer-events: none;
+.octave-loader {
+	flex: 1;
+	background-color: #afa;
 }
-#myPiano[ dl ] .loading {
-	position: absolute;
-	inset: 0;
-	font-size: 52px;
-}
-#myPiano:not( [ dl ] ) .loading {
+.octave-loader:not( .octave-needed ) {
 	display: none;
 }
+.octave-loading {
+	animation: octave-loading-anim .2s alternate infinite linear;
+}
+@keyframes octave-loading-anim {
+	from { background-color: transparent; }
+	to { background-color: #fffa; }
+}
 
+/* .......................................................................... */
 #pianoTop {
 	position: absolute;
 	inset: 0 calc( 16px + 8px );
