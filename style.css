@@ -1,6 +1,7 @@
 html,
 body {
 	height: 100%;
+	user-select: auto;
 }
 body {
 	color-scheme: dark;
@@ -25,11 +26,13 @@ body {
 	position: relative;
 	z-index: 1;
 	align-items: baseline;
+	margin: auto 0 0 20px;
+	padding-top: 40px;
 	height: 50px;
 	line-height: 50px;
 	font-size: 24px;
 	font-weight: bold;
-	margin: auto 0 0 20px;
+	white-space: nowrap;
 }
 #title span:first-child {
 	text-shadow: 0 0 20px #fff4;
@@ -41,29 +44,12 @@ body {
 }
 
 /* .......................................................................... */
-#foot {
-	display: flex;
-	align-items: center;
-	margin-top: auto;
-	height: 48px;
-	min-height: 48px;
-}
-#copyright {
-	font-size: 11px;
-	font-weight: bold;
-	color: inherit;
-	opacity: .5;
-}
-#copyright a {
-	color: inherit;
-}
-
-/* .......................................................................... */
 #myPiano {
 	position: relative;
 	display: flex;
 	gap: 8px;
 	padding-right: calc( 8px + 16px );
+	user-select: none;
 }
 #velocityLabel {
 	display: flex;
@@ -121,6 +107,7 @@ body {
 	inset: 0 calc( 16px + 8px );
 	top: -540px;
 	bottom: 100%;
+	pointer-events: none;
 }
 #pianoSVGGradients {
 	position: absolute;
@@ -134,4 +121,29 @@ body {
 	transform: skewY( 345deg ) scaleX( .9 );
 	transform-origin: left;
 	fill: url( #pianoGradient2 );
+}
+
+/* .......................................................................... */
+#foot {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	margin-top: auto;
+	gap: 12px;
+	max-width: 470px;
+	padding: 20px 6ch;
+	font-size: 12px;
+	text-align: center;
+	color: #fff6;
+/*	background-color: indianred;*/
+}
+#foot a {
+	color: inherit;
+}
+#foot i {
+	white-space: nowrap;
+}
+#copyright {
+	font-weight: bold;
+	color: inherit;
 }

@@ -15,9 +15,9 @@ document.body.append(
 						GSUcreateElementSVG( "stop", { offset:  "50%", "stop-color": "#00000040" } ),
 						GSUcreateElementSVG( "stop", { offset: "100%", "stop-color": "#00000000" } ),
 					),
-					GSUcreateElementSVG( "linearGradient", { id: "pianoGradient2", x1: "0%", x2: "0%", y1: "0%", y2: "100%" },
-						GSUcreateElementSVG( "stop", { offset:  "50%", "stop-color": "#00000040" } ),
-						GSUcreateElementSVG( "stop", { offset: "100%", "stop-color": "#00000010" } ),
+					GSUcreateElementSVG( "linearGradient", { id: "pianoGradient2", x1: "100%", x2: "0%", y1: "0%", y2: "0%" },
+						GSUcreateElementSVG( "stop", { offset:  "50%", "stop-color": "#00000030" } ),
+						GSUcreateElementSVG( "stop", { offset: "100%", "stop-color": "#00000000" } ),
 					),
 				),
 			),
@@ -34,7 +34,7 @@ document.body.append(
 			GSUcreateI( { class: "gsuiIcon", "data-icon": "arrow-down" } ),
 		),
 		GSUcreateDiv( { id: "niceBorder" },
-			GSUcreateElement( "gsui-keys", { orient: "horizontal", rootoctave: 4, octaves: "1 4" } ),
+			GSUcreateElement( "gsui-keys", { orient: "horizontal", rootoctave: 2, octaves: "1 4" } ),
 			GSUcreateDiv( { id: "octaves-loaders" },
 				GSUcreateDiv( { class: "octave-loader", style: { animationDelay: ".0s" } } ),
 				GSUcreateDiv( { class: "octave-loader", style: { animationDelay: ".05s" } } ),
@@ -47,6 +47,14 @@ document.body.append(
 		),
 	),
 	GSUcreateDiv( { id: "foot" },
+		GSUcreateDiv( { id: "readme" },
+			GSUcreateSpan( null, "The raw audio samples come from a Piano " ),
+			GSUcreateI( null, "Steinway & Sons model B" ),
+			GSUcreateSpan( null, " recorded at " ),
+			GSUcreateAExt( { href: "https://theremin.music.uiowa.edu/MISpiano.html" }, "the university of Iowa" ),
+			GSUcreateSpan( null, " — " ),
+			GSUcreateAExt( { href: "https://github.com/gridsound/piano" }, "source code" ),
+		),
 		GSUcreateSpan( { id: "copyright" },
 			"© 2024 ",
 			GSUcreateA( { href: "https://gridsound.com" }, "gridsound.com" ),
@@ -61,6 +69,7 @@ const octavesLoadersWrap = document.querySelector( "#octaves-loaders" );
 const octavesLoaders = octavesLoadersWrap.getElementsByClassName( "octave-loader" );
 const szKey = GSUonMobile ? 24 : 16;
 const octaveBuffers = {};
+const keyboardDown = {};
 const octaveURLs = {
 	1: "assets/🎹/21-35.96k.mp3",
 	2: "assets/🎹/36-47.96k.mp3",
@@ -180,7 +189,39 @@ const keysMap88 = {
 uiKeys.style.fontSize = `${ szKey }px`;
 gsuiKeys.$keyNotation( "CDEFGAB" );
 
-document.body.onresize = () => {
+document.body.onresize = onresize;
+document.body.onclick = () => {
+	if ( ctx.state !== "running" ) {
+		ctx.resume();
+	}
+};
+document.body.onkeydown = e => {
+	const key = uiKeys.$getMidiKeyFromKeyboard( e );
+
+	if ( key !== false && !( key in keyboardDown ) ) {
+		keyboardDown[ key ] = true;
+		uiKeys.$midiKeyDown( key );
+	}
+};
+document.body.onkeyup = e => {
+	const key = uiKeys.$getMidiKeyFromKeyboard( e );
+
+	if ( key !== false ) {
+		delete keyboardDown[ key ];
+		uiKeys.$midiKeyUp( key );
+	}
+};
+
+GSUlistenEvents( uiKeys, {
+	gsuiKeys: {
+		keyDown: d => startKey( ...d.args ),
+		keyUp: d => stopKey( ...d.args ),
+	}
+} );
+
+onresize();
+
+function onresize() {
 	const sz = document.body.clientWidth - 80;
 	const nbOct2 = Math.max( 1, Math.min( Math.floor( sz / ( 12 * szKey ) ), 7 ) );
 
@@ -196,15 +237,7 @@ document.body.onresize = () => {
 			}
 		}
 	}
-};
-
-document.body.onresize();
-
-document.body.onclick = () => {
-	if ( ctx.state !== "running" ) {
-		ctx.resume();
-	}
-};
+}
 
 function dlOctave( oct ) {
 	const url = octaveURLs[ oct ];
@@ -221,42 +254,41 @@ function dlOctave( oct ) {
 		} );
 }
 
-GSUlistenEvents( uiKeys, {
-	gsuiKeys: {
-		keyDown: d => {
-			const [ key, vel ] = d.args;
-			const key2 = key + 12;
-			const [ octave, bufDur, bufOff ] = keysMap88[ key2 ];
-			const buf = octaveBuffers[ octave ];
-			const vel2 = Math.max( .25, Math.min( vel / .85, 1 ) );
-			const absn = ctx.createBufferSource();
-			const gain = ctx.createGain();
-			const lowp = ctx.createBiquadFilter();
-			const freq = 440 * 2 ** ( ( ( key2 ) - 69 ) / 12 );
-			const filt = ( freq + 5000 * GSUeaseInCirc( vel2 ) ) / ( 1 / vel2 );
+function startKey( key, vel ) {
+	const key2 = key + 12;
+	const [ octave, bufDur, bufOff ] = keysMap88[ key2 ];
+	const buf = octaveBuffers[ octave ];
+	const vel2 = Math.max( .25, Math.min( vel / .85, 1 ) );
+	const absn = ctx.createBufferSource();
+	const gain = ctx.createGain();
+	const lowp = ctx.createBiquadFilter();
+	const freq = 440 * 2 ** ( ( ( key2 ) - 69 ) / 12 );
+	const filt = ( freq + 5000 * GSUeaseInCirc( vel2 ) ) / ( 1 / vel2 );
 
-			absn.buffer = buf;
-			lowp.type = "lowpass";
-			lowp.Q.setValueAtTime( 0, ctx.currentTime );
-			lowp.frequency.setValueAtTime( filt, ctx.currentTime );
-			gain.gain.setValueAtTime( vel2, ctx.currentTime );
-			absn.connect( lowp );
-			lowp.connect( gain );
-			gain.connect( ctx.destination );
-			absn.start( 0, bufOff, bufDur );
-			absnMap.set( key2, [ absn, gain, lowp, vel2 ] );
-		},
-		keyUp: d => {
-			const key = d.args[ 0 ];
-			const key2 = key + 12;
-			const [ absn, gain, lowp, vel ] = absnMap.get( key2 );
+	absn.buffer = buf;
+	lowp.type = "lowpass";
+	lowp.Q.setValueAtTime( 0, ctx.currentTime );
+	lowp.frequency.setValueAtTime( filt, ctx.currentTime );
+	gain.gain.setValueAtTime( vel2, ctx.currentTime );
+	absn.connect( lowp );
+	lowp.connect( gain );
+	gain.connect( ctx.destination );
+	absn.start( 0, bufOff, bufDur );
+	absnMap.set( key2, [ absn, gain, lowp, vel2 ] );
+}
 
-			gain.gain.setValueCurveAtTime( new Float32Array( [ vel, 0 ] ), ctx.currentTime, .5 );
-			setTimeout(() => {
-				lowp.disconnect();
-				gain.disconnect();
-				absn.stop();
-			}, .6 * 1000 );
-		},
+function stopKey( key ) {
+	const key2 = key + 12;
+	const absnData = absnMap.get( key2 );
+
+	if ( absnData ) {
+		const [ absn, gain, lowp, vel ] = absnData;
+
+		gain.gain.setValueCurveAtTime( new Float32Array( [ vel, 0 ] ), ctx.currentTime, .5 );
+		setTimeout(() => {
+			lowp.disconnect();
+			gain.disconnect();
+			absn.stop();
+		}, .6 * 1000 );
 	}
-} );
+}
