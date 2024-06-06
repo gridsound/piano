@@ -21,15 +21,37 @@ body {
 ::-webkit-scrollbar-thumb { background-color: #777; }
 
 /* .......................................................................... */
+#head {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: auto;
+	margin-bottom: 10px;
+	padding-top: 32px;
+	gap: 12px;
+}
+gsui-analysertime {
+	width: 200px;
+	height: 32px;
+	border-radius: 8px;
+	background-color: #0003;
+}
+#analyserBottom gsui-analysertime {
+	width: 100%;
+}
+#analyserBottom {
+	width: 100%;
+	margin-top: 20px;
+}
+#analyserBottom:empty {
+	display: none;
+}
 #title {
 	display: flex;
+	align-items: baseline;
+	gap: 10px;
 	position: relative;
 	z-index: 1;
-	align-items: baseline;
-	margin: auto 0 0 20px;
-	padding-top: 40px;
-	height: 50px;
-	line-height: 50px;
 	font-size: 24px;
 	font-weight: bold;
 	white-space: nowrap;
@@ -38,7 +60,6 @@ body {
 	text-shadow: 0 0 20px #fff4;
 }
 #title span:last-child {
-	margin-left: 1ch;
 	font-size: 10px;
 	color: #999;
 }
@@ -146,4 +167,11 @@ body {
 #copyright {
 	font-weight: bold;
 	color: inherit;
+}
+
+
+@media ( max-width: 450px ) {
+	#head {
+		flex-direction: column;
+	}
 }

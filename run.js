@@ -3,9 +3,12 @@
 const pianoPath = "M4.57764e-05 112.676C3.86599e-05 90.6737 0 73 8.5 52.5C17 32 33.9306 20.4349 39 17.5C48.5 12 70 -3.05176e-05 110 -1.52587e-05C150 0 192 16 216.5 46.5C235 69.5 244.5 88 247 133.5C249.5 179 253.5 188.5 268.5 213C283.5 237.5 347.5 265 355.5 284.5C363.5 304 360 394 360 394H4.57764e-05C4.57764e-05 394 6.10352e-05 159.851 4.57764e-05 112.676Z";
 
 document.body.append(
-	GSUcreateDiv( { id: "title" },
-		GSUcreateSpan( null, "Piano" ),
-		GSUcreateSpan( null, "by GridSound" ),
+	GSUcreateDiv( { id: "head" },
+		GSUcreateElement( "gsui-analysertime", { color: "#ddd", pinch: 1, amp: 10 } ),
+		GSUcreateDiv( { id: "title" },
+			GSUcreateSpan( null, "Piano" ),
+			GSUcreateSpan( null, "by GridSound" ),
+		),
 	),
 	GSUcreateDiv( { id: "myPiano" },
 		GSUcreateDiv( { id: "pianoTop" },
@@ -46,6 +49,7 @@ document.body.append(
 			),
 		),
 	),
+	GSUcreateDiv( { id: "analyserBottom" } ),
 	GSUcreateDiv( { id: "foot" },
 		GSUcreateDiv( { id: "readme" },
 			GSUcreateSpan( null, "The raw audio samples come from a Piano " ),
@@ -64,7 +68,10 @@ document.body.append(
 );
 
 const root = document.querySelector( "#myPiano" );
+const head = document.querySelector( "#head" );
 const uiKeys = document.querySelector( "gsui-keys" );
+const uiAnTime = document.querySelector( "gsui-analysertime" );
+const anBottom = document.querySelector( "#analyserBottom" );
 const octavesLoadersWrap = document.querySelector( "#octaves-loaders" );
 const octavesLoaders = octavesLoadersWrap.getElementsByClassName( "octave-loader" );
 const szKey = GSUonMobile ? 24 : 16;
@@ -81,6 +88,9 @@ const octaveURLs = {
 };
 const absnMap = new Map();
 const ctx = new AudioContext();
+const analyserNode = ctx.createAnalyser();
+const analyserFFTSize = 512;
+const analyserData = new Uint8Array( analyserFFTSize / 2 );
 let nbOct = 0;
 const keysMap88 = {
 	// assets/🎹/21-35
@@ -186,6 +196,17 @@ const keysMap88 = {
 	108: [ 7, 2, 2 * 12 ],
 };
 
+analyserNode.fftSize = analyserFFTSize;
+analyserNode.smoothingTimeConstant = 0;
+
+function frame() {
+	analyserNode.getByteTimeDomainData( analyserData );
+	uiAnTime.$draw( analyserData );
+	requestAnimationFrame( frame );
+}
+
+frame();
+
 uiKeys.style.fontSize = `${ szKey }px`;
 gsuiKeys.$keyNotation( "CDEFGAB" );
 
@@ -226,6 +247,9 @@ function onresize() {
 	const nbOct2 = Math.max( 1, Math.min( Math.floor( sz / ( 12 * szKey ) ), 7 ) );
 
 	if ( nbOct !== nbOct2 ) {
+		if ( ( nbOct === 1 ) !== ( nbOct2 === 1 ) ) {
+			( nbOct2 === 1 ? anBottom : head ).prepend( uiAnTime );
+		}
 		nbOct = nbOct2;
 		GSUsetAttribute( uiKeys, "octaves", `1 ${ nbOct }` );
 		for ( let i = 0; i < octavesLoaders.length; ++i ) {
@@ -236,6 +260,8 @@ function onresize() {
 				dlOctave( i + 1 );
 			}
 		}
+		head.style.width =
+		anBottom.style.width = `${ uiKeys.parentNode.clientWidth }px`;
 	}
 }
 
@@ -258,7 +284,7 @@ function startKey( key, vel ) {
 	const key2 = key + 12;
 	const [ octave, bufDur, bufOff ] = keysMap88[ key2 ];
 	const buf = octaveBuffers[ octave ];
-	const vel2 = Math.max( .25, Math.min( vel / .85, 1 ) );
+	const vel2 = Math.max( .001, GSUeaseOutCirc( ( .2 + vel ) * ( 1 / 1.2 ) ) );
 	const absn = ctx.createBufferSource();
 	const gain = ctx.createGain();
 	const lowp = ctx.createBiquadFilter();
@@ -270,9 +296,11 @@ function startKey( key, vel ) {
 	lowp.Q.setValueAtTime( 0, ctx.currentTime );
 	lowp.frequency.setValueAtTime( filt, ctx.currentTime );
 	gain.gain.setValueAtTime( vel2, ctx.currentTime );
-	absn.connect( lowp );
-	lowp.connect( gain );
-	gain.connect( ctx.destination );
+	gain.connect( analyserNode );
+	absn
+		.connect( lowp )
+		.connect( gain )
+		.connect( ctx.destination );
 	absn.start( 0, bufOff, bufDur );
 	absnMap.set( key2, [ absn, gain, lowp, vel2 ] );
 }
@@ -284,7 +312,7 @@ function stopKey( key ) {
 	if ( absnData ) {
 		const [ absn, gain, lowp, vel ] = absnData;
 
-		gain.gain.setValueCurveAtTime( new Float32Array( [ vel, 0 ] ), ctx.currentTime, .5 );
+		gain.gain.setValueCurveAtTime( new Float32Array( [ vel, 0 ] ), ctx.currentTime, .35 );
 		setTimeout(() => {
 			lowp.disconnect();
 			gain.disconnect();

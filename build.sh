@@ -22,7 +22,7 @@ writeHeader() {
 writeBody() {
 	echo '</head>'
 	echo '<body>'
-	echo '<noscript>GridSound needs JavaScript to run</noscript>'
+	echo '<noscript>need JavaScript</noscript>'
 }
 writeEnd() {
 	echo '</body>'
@@ -58,6 +58,7 @@ declare -a CSSfiles=(
 	"gs-ui-components/gsuiIcon/gsuiIcon.css"
 	"gs-ui-components/gsuiKeys/gsuiKeys.colors.default.css"
 	"gs-ui-components/gsuiKeys/gsuiKeys.css"
+	"gs-ui-components/gsuiAnalyserTime/gsuiAnalyserTime.css"
 	"style.css"
 )
 
@@ -72,6 +73,7 @@ declare -a JSfiles=(
 	"gs-ui-components/gsui0ne/gsui0ne.js"
 	"gs-ui-components/gsuiKeys/gsuiKeys.html.js"
 	"gs-ui-components/gsuiKeys/gsuiKeys.js"
+	"gs-ui-components/gsuiAnalyserTime/gsuiAnalyserTime.js"
 	"run.js"
 )
 
@@ -92,7 +94,7 @@ buildProd() {
 	writeHeader > $filename
 	writeCSScompress >> $filename
 	writeBody >> $filename
-	echo '<script>function lg( a ) { return a; }</script>' >> $filename
+	echo '<script>function lg(a){return a}</script>' >> $filename
 	writeJScompress >> $filename
 	writeEnd >> $filename
 }
