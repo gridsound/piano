@@ -74,6 +74,7 @@ const uiAnTime = document.querySelector( "gsui-analysertime" );
 const anBottom = document.querySelector( "#analyserBottom" );
 const octavesLoadersWrap = document.querySelector( "#octaves-loaders" );
 const octavesLoaders = octavesLoadersWrap.getElementsByClassName( "octave-loader" );
+const midiManager = new gswaMIDIControllersManager();
 const szKey = GSUonMobile ? 24 : 16;
 const octaveBuffers = {};
 const keyboardDown = {};
@@ -210,6 +211,12 @@ frame();
 uiKeys.style.fontSize = `${ szKey }px`;
 gsuiKeys.$keyNotation( "CDEFGAB" );
 
+navigator.requestMIDIAccess( { sysex: true } )
+	.then( midiAccess => {
+		midiManager.$initMidiAccess( midiAccess );
+		midiManager.$setPianorollKeys( uiKeys );
+	} );
+
 document.body.onresize = onresize;
 document.body.onclick = () => {
 	if ( ctx.state !== "running" ) {
@@ -291,6 +298,7 @@ function startKey( key, vel ) {
 	const freq = 440 * 2 ** ( ( ( key2 ) - 69 ) / 12 );
 	const filt = ( freq + 5000 * GSUeaseInCirc( vel2 ) ) / ( 1 / vel2 );
 
+	// lg(vel, vel2)
 	absn.buffer = buf;
 	lowp.type = "lowpass";
 	lowp.Q.setValueAtTime( 0, ctx.currentTime );

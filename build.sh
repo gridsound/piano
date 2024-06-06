@@ -74,6 +74,9 @@ declare -a JSfiles=(
 	"gs-ui-components/gsuiKeys/gsuiKeys.html.js"
 	"gs-ui-components/gsuiKeys/gsuiKeys.js"
 	"gs-ui-components/gsuiAnalyserTime/gsuiAnalyserTime.js"
+	"gs-wa-components/gswaMIDIControllersManager/gswaMIDIControllersManager.js"
+	"gs-wa-components/gswaMIDIControllersManager/gswaMIDIControllerInput.js"
+	"gs-wa-components/gswaMIDIControllersManager/gswaMIDIControllerOutput.js"
 	"run.js"
 )
 
