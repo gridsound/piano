@@ -60,7 +60,7 @@ document.body.append(
 			GSUcreateAExt( { href: "https://github.com/gridsound/piano" }, "source code" ),
 		),
 		GSUcreateSpan( { id: "copyright" },
-			"© 2024 ",
+			`© ${ ( new Date() ).getFullYear() } `,
 			GSUcreateA( { href: "https://gridsound.com" }, "gridsound.com" ),
 			" all rights reserved",
 		),
