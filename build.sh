@@ -56,9 +56,8 @@ declare -a CSSfiles=(
 	"assets/fonts/fonts.css"
 	"gs-ui-components/gsui.css"
 	"gs-ui-components/gsuiIcon/gsuiIcon.css"
-	"gs-ui-components/gsuiKeys/gsuiKeys.colors.default.css"
+	"gs-ui-components/gsuiAnalyserHist/gsuiAnalyserHist.css"
 	"gs-ui-components/gsuiKeys/gsuiKeys.css"
-	"gs-ui-components/gsuiAnalyserTime/gsuiAnalyserTime.css"
 	"style.css"
 )
 
@@ -71,12 +70,12 @@ declare -a JSfiles=(
 	"gs-utils/gs-utils.js"
 	"gs-utils/gs-utils-dom.js"
 	"gs-ui-components/gsui0ne/gsui0ne.js"
+	"gs-ui-components/gsuiAnalyserTd/gsuiAnalyserTd.js"
 	"gs-ui-components/gsuiKeys/gsuiKeys.html.js"
 	"gs-ui-components/gsuiKeys/gsuiKeys.js"
-	"gs-ui-components/gsuiAnalyserTime/gsuiAnalyserTime.js"
-	"gs-wa-components/gswaMIDIControllersManager/gswaMIDIControllersManager.js"
-	"gs-wa-components/gswaMIDIControllersManager/gswaMIDIControllerInput.js"
-	"gs-wa-components/gswaMIDIControllersManager/gswaMIDIControllerOutput.js"
+	"gs-wa-components/gswaMIDIDevices/gswaMIDIDevices.js"
+	"gs-wa-components/gswaMIDIDevices/gswaMIDIInput.js"
+	"gs-wa-components/gswaMIDIDevices/gswaMIDIOutput.js"
 	"run.js"
 )
 

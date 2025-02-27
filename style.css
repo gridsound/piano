@@ -30,13 +30,13 @@ body {
 	padding-top: 32px;
 	gap: 12px;
 }
-gsui-analysertime {
+gsui-analyser-td {
 	width: 200px;
 	height: 32px;
 	border-radius: 8px;
 	background-color: #0003;
 }
-#analyserBottom gsui-analysertime {
+#analyserBottom gsui-analyser-td {
 	width: 100%;
 }
 #analyserBottom {

@@ -4,7 +4,7 @@ const pianoPath = "M4.57764e-05 112.676C3.86599e-05 90.6737 0 73 8.5 52.5C17 32 
 
 document.body.append(
 	GSUcreateDiv( { id: "head" },
-		GSUcreateElement( "gsui-analysertime", { color: "#ddd", pinch: 1, amp: 10 } ),
+		GSUcreateElement( "gsui-analyser-td", { color: "#ddd", pinch: 1, amp: 8 } ),
 		GSUcreateDiv( { id: "title" },
 			GSUcreateSpan( null, "Piano" ),
 			GSUcreateSpan( null, "by GridSound" ),
@@ -70,28 +70,28 @@ document.body.append(
 const root = document.querySelector( "#myPiano" );
 const head = document.querySelector( "#head" );
 const uiKeys = document.querySelector( "gsui-keys" );
-const uiAnTime = document.querySelector( "gsui-analysertime" );
+const uiAnTd = document.querySelector( "gsui-analyser-td" );
 const anBottom = document.querySelector( "#analyserBottom" );
 const octavesLoadersWrap = document.querySelector( "#octaves-loaders" );
 const octavesLoaders = octavesLoadersWrap.getElementsByClassName( "octave-loader" );
-const midiManager = new gswaMIDIControllersManager();
+const midiDevices = new gswaMIDIDevices();
 const szKey = GSUonMobile ? 24 : 16;
 const octaveBuffers = {};
 const keyboardDown = {};
 const octaveURLs = {
-	1: "assets/🎹/21-35.96k.mp3",
-	2: "assets/🎹/36-47.96k.mp3",
-	3: "assets/🎹/48-59.96k.mp3",
-	4: "assets/🎹/60-71.96k.mp3",
-	5: "assets/🎹/72-83.96k.mp3",
-	6: "assets/🎹/84-95.96k.mp3",
-	7: "assets/🎹/96-108.96k.mp3",
+	1: "samples/🎹/21-35.96k.mp3",
+	2: "samples/🎹/36-47.96k.mp3",
+	3: "samples/🎹/48-59.96k.mp3",
+	4: "samples/🎹/60-71.96k.mp3",
+	5: "samples/🎹/72-83.96k.mp3",
+	6: "samples/🎹/84-95.96k.mp3",
+	7: "samples/🎹/96-108.96k.mp3",
 };
 const absnMap = new Map();
 const ctx = new AudioContext();
 const analyserNode = ctx.createAnalyser();
 const analyserFFTSize = 512;
-const analyserData = new Uint8Array( analyserFFTSize / 2 );
+const analyserData = new Float32Array( analyserFFTSize / 2 );
 let nbOct = 0;
 const keysMap88 = {
 	// assets/🎹/21-35
@@ -201,8 +201,8 @@ analyserNode.fftSize = analyserFFTSize;
 analyserNode.smoothingTimeConstant = 0;
 
 function frame() {
-	analyserNode.getByteTimeDomainData( analyserData );
-	uiAnTime.$draw( analyserData );
+	analyserNode.getFloatTimeDomainData( analyserData );
+	uiAnTd.$draw( analyserData );
 	requestAnimationFrame( frame );
 }
 
@@ -211,11 +211,8 @@ frame();
 uiKeys.style.fontSize = `${ szKey }px`;
 gsuiKeys.$keyNotation( "CDEFGAB" );
 
-navigator.requestMIDIAccess( { sysex: true } )
-	.then( midiAccess => {
-		midiManager.$initMidiAccess( midiAccess );
-		midiManager.$setPianorollKeys( uiKeys );
-	} );
+midiDevices.$init();
+midiDevices.$setPianorollKeys( uiKeys );
 
 document.body.onresize = onresize;
 document.body.onclick = () => {
@@ -255,7 +252,7 @@ function onresize() {
 
 	if ( nbOct !== nbOct2 ) {
 		if ( ( nbOct === 1 ) !== ( nbOct2 === 1 ) ) {
-			( nbOct2 === 1 ? anBottom : head ).prepend( uiAnTime );
+			( nbOct2 === 1 ? anBottom : head ).prepend( uiAnTd );
 		}
 		nbOct = nbOct2;
 		GSUsetAttribute( uiKeys, "octaves", `1 ${ nbOct }` );
@@ -298,7 +295,6 @@ function startKey( key, vel ) {
 	const freq = 440 * 2 ** ( ( ( key2 ) - 69 ) / 12 );
 	const filt = ( freq + 5000 * GSUeaseInCirc( vel2 ) ) / ( 1 / vel2 );
 
-	// lg(vel, vel2)
 	absn.buffer = buf;
 	lowp.type = "lowpass";
 	lowp.Q.setValueAtTime( 0, ctx.currentTime );

@@ -11,3 +11,6 @@
 [submodule "gs-wa-components"]
 	path = gs-wa-components
 	url = https://github.com/gridsound/gs-wa-components.git
+[submodule "samples"]
+	path = samples
+	url = https://github.com/gridsound/samples.git
