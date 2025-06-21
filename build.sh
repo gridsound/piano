@@ -45,7 +45,7 @@ writeCSScompress() {
 writeJScompress() {
 	echo '"use strict";' > allJS.js
 	cat "${JSfilesProd[@]}" >> allJS.js
-	cat "${JSfiles[@]}" >> allJS.js
+	cat `echo "${JSfiles[@]}" | sed 's/.dev.js/.prod.js/g'` >> allJS.js
 	echo '<script>'
 	terser allJS.js --compress --mangle --toplevel --mangle-props "regex='^[$]'"
 	echo '</script>'
@@ -69,6 +69,10 @@ declare -a JSfiles=(
 	# "checkBrowser.js"
 	"gs-utils/gs-utils.js"
 	"gs-utils/gs-utils-dom.js"
+	"gs-utils/gs-utils-math.js"
+	"gs-utils/gs-utils-func.js"
+	"gs-utils/gs-utils-checkType.dev.js"
+	"gs-utils/gs-utils-audio-nodes.dev.js"
 	"gs-ui-components/gsui0ne/gsui0ne.js"
 	"gs-ui-components/gsuiAnalyserTd/gsuiAnalyserTd.js"
 	"gs-ui-components/gsuiKeys/gsuiKeys.html.js"

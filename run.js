@@ -32,9 +32,9 @@ document.body.append(
 			),
 		),
 		GSUcreateDiv( { id: "velocityLabel" },
-			GSUcreateI( { class: "gsuiIcon", "data-icon": "arrow-up" } ),
+			GSUcreateIcon( { icon: "arrow-up" } ),
 			GSUcreateSpan( null, "velocity" ),
-			GSUcreateI( { class: "gsuiIcon", "data-icon": "arrow-down" } ),
+			GSUcreateIcon( { icon: "arrow-down" } ),
 		),
 		GSUcreateDiv( { id: "niceBorder" },
 			GSUcreateElement( "gsui-keys", { orient: "horizontal", rootoctave: 2, octaves: "1 4" } ),
@@ -53,7 +53,7 @@ document.body.append(
 	GSUcreateDiv( { id: "foot" },
 		GSUcreateDiv( { id: "readme" },
 			GSUcreateSpan( null, "The raw audio samples come from a Piano " ),
-			GSUcreateI( null, "Steinway & Sons model B" ),
+			GSUcreateElement( "i", null, "Steinway & Sons model B" ),
 			GSUcreateSpan( null, " recorded at " ),
 			GSUcreateAExt( { href: "https://theremin.music.uiowa.edu/MISpiano.html" }, "the university of Iowa" ),
 			GSUcreateSpan( null, " — " ),
@@ -67,12 +67,12 @@ document.body.append(
 	),
 );
 
-const root = document.querySelector( "#myPiano" );
-const head = document.querySelector( "#head" );
-const uiKeys = document.querySelector( "gsui-keys" );
-const uiAnTd = document.querySelector( "gsui-analyser-td" );
-const anBottom = document.querySelector( "#analyserBottom" );
-const octavesLoadersWrap = document.querySelector( "#octaves-loaders" );
+const root = GSUdomQS( "#myPiano" );
+const head = GSUdomQS( "#head" );
+const uiKeys = GSUdomQS( "gsui-keys" );
+const uiAnTd = GSUdomQS( "gsui-analyser-td" );
+const anBottom = GSUdomQS( "#analyserBottom" );
+const octavesLoadersWrap = GSUdomQS( "#octaves-loaders" );
 const octavesLoaders = octavesLoadersWrap.getElementsByClassName( "octave-loader" );
 const midiDevices = new gswaMIDIDevices();
 const szKey = GSUonMobile ? 24 : 16;
@@ -88,8 +88,8 @@ const octaveURLs = {
 	7: "samples/🎹/96-108.96k.mp3",
 };
 const absnMap = new Map();
-const ctx = new AudioContext();
-const analyserNode = ctx.createAnalyser();
+const ctx = GSUaudioContext();
+const analyserNode = GSUaudioAnalyser( ctx );
 const analyserFFTSize = 512;
 const analyserData = new Float32Array( analyserFFTSize / 2 );
 let nbOct = 0;
@@ -200,13 +200,10 @@ const keysMap88 = {
 analyserNode.fftSize = analyserFFTSize;
 analyserNode.smoothingTimeConstant = 0;
 
-function frame() {
+GSUsetInterval( () => {
 	analyserNode.getFloatTimeDomainData( analyserData );
 	uiAnTd.$draw( analyserData );
-	requestAnimationFrame( frame );
-}
-
-frame();
+}, 0 );
 
 uiKeys.style.fontSize = `${ szKey }px`;
 gsuiKeys.$keyNotation( "CDEFGAB" );
@@ -255,7 +252,7 @@ function onresize() {
 			( nbOct2 === 1 ? anBottom : head ).prepend( uiAnTd );
 		}
 		nbOct = nbOct2;
-		GSUsetAttribute( uiKeys, "octaves", `1 ${ nbOct }` );
+		GSUdomSetAttr( uiKeys, "octaves", `1 ${ nbOct }` );
 		for ( let i = 0; i < octavesLoaders.length; ++i ) {
 			const needed = i < nbOct;
 
@@ -288,12 +285,12 @@ function startKey( key, vel ) {
 	const key2 = key + 12;
 	const [ octave, bufDur, bufOff ] = keysMap88[ key2 ];
 	const buf = octaveBuffers[ octave ];
-	const vel2 = Math.max( .001, GSUeaseOutCirc( ( .2 + vel ) * ( 1 / 1.2 ) ) );
-	const absn = ctx.createBufferSource();
-	const gain = ctx.createGain();
-	const lowp = ctx.createBiquadFilter();
+	const vel2 = Math.max( .001, GSUmathEaseOutCirc( ( .2 + vel ) * ( 1 / 1.2 ) ) );
+	const absn = GSUaudioBufferSource( ctx );
+	const gain = GSUaudioGain( ctx );
+	const lowp = GSUaudioBiquadFilter( ctx );
 	const freq = 440 * 2 ** ( ( ( key2 ) - 69 ) / 12 );
-	const filt = ( freq + 5000 * GSUeaseInCirc( vel2 ) ) / ( 1 / vel2 );
+	const filt = ( freq + 5000 * GSUmathEaseInCirc( vel2 ) ) / ( 1 / vel2 );
 
 	absn.buffer = buf;
 	lowp.type = "lowpass";
@@ -317,10 +314,10 @@ function stopKey( key ) {
 		const [ absn, gain, lowp, vel ] = absnData;
 
 		gain.gain.setValueCurveAtTime( new Float32Array( [ vel, 0 ] ), ctx.currentTime, .35 );
-		setTimeout(() => {
+		GSUsetTimeout( () => {
 			lowp.disconnect();
 			gain.disconnect();
 			absn.stop();
-		}, .6 * 1000 );
+		}, .6 );
 	}
 }
