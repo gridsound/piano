@@ -2,7 +2,7 @@ export default {
 	title:         "Piano by GridSound",
 	desc:          "A virtual piano",
 	favicon:       "assets/favicon.png",
-	url:           "https://soundbox.gridsound.com/",
+	url:           "https://piano.gridsound.com/",
 	ogImage:       "https://piano.gridsound.com/cover.png",
 	ogImageW:      1290,
 	ogImageH:       624,
